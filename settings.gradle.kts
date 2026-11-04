@@ -14,4 +14,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "CleanProxy"
-include(":app")
+include(":app", ":wifiapp")
