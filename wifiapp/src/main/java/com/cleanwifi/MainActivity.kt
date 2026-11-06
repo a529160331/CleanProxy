@@ -59,19 +59,19 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
         }
         val subtitle = TextView(this).apply {
-            text = "私人 WiFi 助手 · 密码默认只保存在本机"
+            text = "公共热点密码匹配 · 自动查找允许分享的访客 WiFi"
             textSize = 14f
             setTextColor(0xFF526174.toInt())
             setPadding(0, 8, 0, 16)
         }
         status = TextView(this).apply {
-            text = "准备扫描附近网络"
+            text = "准备查找附近公共热点密码"
             textSize = 14f
             setTextColor(0xFF315A86.toInt())
             setPadding(0, 8, 0, 12)
         }
         val scan = Button(this).apply {
-            text = "扫描附近 WiFi"
+            text = "查找附近 WiFi 密码"
             setOnClickListener { requestScan() }
         }
         val add = Button(this).apply {
@@ -134,7 +134,7 @@ class MainActivity : Activity() {
     @Suppress("DEPRECATION")
     private fun renderNetworks() {
         content.removeAllViews()
-        addSection("附近 WiFi")
+        addSection("附近网络（仅作为匹配入口）")
         if (!hasScanPermission()) {
             addLine("需要定位权限才能读取附近 WiFi 扫描结果。")
             return
@@ -164,7 +164,7 @@ class MainActivity : Activity() {
                 }
             }
 
-            addSection("公共热点密码库")
+            addSection("公共热点密码匹配")
             val publicResults = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
             content.addView(publicResults)
             addLine("正在查询经过审核、允许公开分享的公共热点……")
@@ -181,7 +181,7 @@ class MainActivity : Activity() {
                 response.onSuccess { matches ->
                     if (matches.isEmpty()) {
                         val empty = TextView(this).apply {
-                            text = "数据库暂时没有匹配记录。你可以提交允许顾客共享的公共 WiFi；审核通过后会供所有用户查询。"
+                            text = "暂时没有匹配到已审核的公共密码。当前共享库仍在积累首批记录；这不代表网络密码无法使用，也不会猜测或伪造密码。"
                             textSize = 14f
                             setTextColor(0xFF405168.toInt())
                             setPadding(8, 10, 8, 10)
@@ -213,7 +213,7 @@ class MainActivity : Activity() {
                     publicResults.addView(failed)
                 }
             }
-            status.text = "发现 ${results.size} 个可见网络（系统扫描结果）"
+            status.text = "已扫描 ${results.size} 个网络，正在匹配公共共享密码"
         } catch (security: SecurityException) {
             addLine("系统未授予扫描权限。")
         } catch (error: Exception) {
