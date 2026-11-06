@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import org.json.JSONObject
 import java.io.File
+import java.io.ByteArrayOutputStream
 
 class MainActivity : Activity() {
     private lateinit var status: TextView
@@ -115,9 +116,17 @@ class MainActivity : Activity() {
         val uri: Uri = data?.data ?: return
         try {
             val content = contentResolver.openInputStream(uri)?.use { input ->
-                val bytes = input.readNBytes(MAX_CONFIG_BYTES + 1)
-                require(bytes.size <= MAX_CONFIG_BYTES) { "配置文件超过 2 MiB 限制" }
-                String(bytes, Charsets.UTF_8)
+                val output = ByteArrayOutputStream()
+                val buffer = ByteArray(8192)
+                var total = 0
+                while (true) {
+                    val count = input.read(buffer)
+                    if (count < 0) break
+                    total += count
+                    require(total <= MAX_CONFIG_BYTES) { "配置文件超过 2 MiB 限制" }
+                    output.write(buffer, 0, count)
+                }
+                String(output.toByteArray(), Charsets.UTF_8)
             } ?: throw IllegalArgumentException("无法读取文件")
             val json = validateConfig(content)
             configFile?.writeText(json.toString(2))
