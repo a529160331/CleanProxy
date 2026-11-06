@@ -99,8 +99,8 @@ class MainActivity : Activity() {
         val file = configFile ?: return
         if (!file.exists()) return
         try {
-            JSONObject(file.readText())
-            configInfo.text = "已保存配置：" + file.name + "\n节点配置格式检查通过"
+            validateConfig(file.readText())
+            configInfo.text = "已保存配置：" + file.name + "\n基础结构检查通过（未验证节点连通性）"
             status.text = "配置已就绪 · 尚未连接"
         } catch (_: Exception) {
             file.delete()
@@ -114,10 +114,12 @@ class MainActivity : Activity() {
         if (requestCode != REQUEST_IMPORT || resultCode != RESULT_OK) return
         val uri: Uri = data?.data ?: return
         try {
-            val content = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-                ?: throw IllegalArgumentException("无法读取文件")
-            val json = JSONObject(content)
-            require(json.has("outbounds")) { "缺少 outbounds 节点配置" }
+            val content = contentResolver.openInputStream(uri)?.use { input ->
+                val bytes = input.readNBytes(MAX_CONFIG_BYTES + 1)
+                require(bytes.size <= MAX_CONFIG_BYTES) { "配置文件超过 2 MiB 限制" }
+                String(bytes, Charsets.UTF_8)
+            } ?: throw IllegalArgumentException("无法读取文件")
+            val json = validateConfig(content)
             configFile?.writeText(json.toString(2))
             configInfo.text = "节点配置已导入并保存在本机"
             status.text = "配置已就绪 · 尚未连接"
@@ -127,7 +129,25 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun validateConfig(content: String): JSONObject {
+        val json = JSONObject(content)
+        val outbounds = json.optJSONArray("outbounds")
+            ?: throw IllegalArgumentException("缺少 outbounds 数组")
+        require(outbounds.length() > 0) { "outbounds 不能为空" }
+        val tags = mutableSetOf<String>()
+        for (index in 0 until outbounds.length()) {
+            val outbound = outbounds.optJSONObject(index)
+                ?: throw IllegalArgumentException("第 ${index + 1} 个 outbound 不是对象")
+            val type = outbound.optString("type").trim()
+            require(type.isNotEmpty()) { "第 ${index + 1} 个 outbound 缺少 type" }
+            val tag = outbound.optString("tag").trim()
+            if (tag.isNotEmpty()) require(tags.add(tag)) { "outbound tag 重复：$tag" }
+        }
+        return json
+    }
+
     companion object {
         private const val REQUEST_IMPORT = 1001
+        private const val MAX_CONFIG_BYTES = 2 * 1024 * 1024
     }
 }
