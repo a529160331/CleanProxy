@@ -1,0 +1,53 @@
+name: Public Wi-Fi hotspot submission
+description: Submit a public guest Wi-Fi network that the venue allows customers to use and share.
+title: "[WiFi submission] "
+labels: ["wifi-submission", "needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Only submit guest Wi-Fi credentials that the venue explicitly permits customers to use and share publicly. Do not submit home networks, private office networks, personal hotspots, leaked passwords, or credentials obtained without permission.
+
+        Approved submissions may be published in the CleanWiFi public database and visible to all users.
+  - type: input
+    id: ssid
+    attributes:
+      label: Wi-Fi name (SSID)
+      placeholder: Cafe_Guest
+    validations:
+      required: true
+  - type: input
+    id: password
+    attributes:
+      label: Guest Wi-Fi password
+      description: This will become public if the submission is approved.
+    validations:
+      required: true
+  - type: input
+    id: venue
+    attributes:
+      label: Venue name
+      placeholder: Cafe / hotel / mall / library
+    validations:
+      required: true
+  - type: input
+    id: city
+    attributes:
+      label: City and country
+      placeholder: Los Angeles, USA
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Public source or venue confirmation
+      description: Optional link to the venue's official guest Wi-Fi information.
+    validations:
+      required: false
+  - type: checkboxes
+    id: permission
+    attributes:
+      label: Permission confirmation
+      options:
+        - label: I confirm this is a public guest network and the venue permits its credentials to be shared with visitors.
+          required: true
