@@ -223,7 +223,7 @@ class MainActivity : Activity() {
         renderVaultEntries()
         addSection("共享与更新")
         addLine("自动上传：关闭。家庭 WiFi 和私人密码不会上传。")
-        addLine("公开数据库：尚未接入经过许可的数据源；当前不会伪装成已有全国密码库。")
+        addLine("公共密码库只收录经过审核、明确允许公开分享的访客网络；目前正在积累首批记录。")
         addLine("陌生网络：本版本不自动连接，连接操作交由 Android 系统确认。")
     }
 
