@@ -151,7 +151,7 @@ class MainActivity : Activity() {
                     result.capabilities.contains("WEP") -> "WEP（较弱）"
                     else -> "开放网络或未知"
                 }
-                addLine("${result.SSID}\\n信号：${result.level} dBm · ${result.frequency} MHz · ${security}")
+                addLine("${result.SSID}\n信号：${result.level} dBm · ${result.frequency} MHz · ${security}")
                 val saved = savedBySsid[result.SSID]
                 if (saved != null) {
                     val matched = Button(this).apply {
@@ -218,7 +218,7 @@ class MainActivity : Activity() {
     private fun confirmRevealOrShare(ssid: String, password: String) {
         AlertDialog.Builder(this)
             .setTitle("查看已保存的 WiFi 密码")
-            .setMessage("网络：$ssid\\n密码仅在本机加密保存。确认后才会在屏幕显示；分享也必须由你再次主动选择。")
+            .setMessage("网络：$ssid\n密码仅在本机加密保存。确认后才会在屏幕显示；分享也必须由你再次主动选择。")
             .setNegativeButton("取消", null)
             .setPositiveButton("显示密码") { _, _ ->
                 AlertDialog.Builder(this)
@@ -229,7 +229,7 @@ class MainActivity : Activity() {
                         val share = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(Intent.EXTRA_SUBJECT, "WiFi：$ssid")
-                            putExtra(Intent.EXTRA_TEXT, "WiFi 名称：$ssid\\n密码：$password")
+                            putExtra(Intent.EXTRA_TEXT, "WiFi 名称：$ssid\n密码：$password")
                         }
                         startActivity(Intent.createChooser(share, "选择分享方式"))
                     }
