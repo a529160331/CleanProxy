@@ -24,6 +24,7 @@ import android.widget.Toast
 class MainActivity : Activity() {
     private lateinit var wifi: WifiManager
     private lateinit var vault: LocalVault
+    private lateinit var publicDb: PublicWifiDatabase
     private lateinit var content: LinearLayout
     private lateinit var status: TextView
     private var receiverRegistered = false
@@ -38,6 +39,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         vault = LocalVault(this)
+        publicDb = PublicWifiDatabase()
         buildScreen()
         registerScanReceiver()
         renderNetworks()
@@ -161,6 +163,56 @@ class MainActivity : Activity() {
                     content.addView(matched)
                 }
             }
+
+            addSection("公共热点密码库")
+            val publicResults = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+            content.addView(publicResults)
+            addLine("正在查询经过审核、允许公开分享的公共热点……")
+            val submit = Button(this).apply {
+                text = "提交一个允许公开分享的公共 WiFi"
+                setOnClickListener {
+                    val url = "https://github.com/a529160331/CleanProxy/issues/new?template=public-wifi-hotspot.yml"
+                    startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+                }
+            }
+            content.addView(submit)
+            publicDb.lookup(results.map { it.SSID }.toSet()) { response ->
+                publicResults.removeAllViews()
+                response.onSuccess { matches ->
+                    if (matches.isEmpty()) {
+                        val empty = TextView(this).apply {
+                            text = "数据库暂时没有匹配记录。你可以提交允许顾客共享的公共 WiFi；审核通过后会供所有用户查询。"
+                            textSize = 14f
+                            setTextColor(0xFF405168.toInt())
+                            setPadding(8, 10, 8, 10)
+                        }
+                        publicResults.addView(empty)
+                    } else {
+                        matches.forEach { entry ->
+                            val info = TextView(this).apply {
+                                text = "${entry.ssid}\n${entry.venue.ifBlank { "公共场所" }} · ${entry.city}\n${entry.notes}"
+                                textSize = 14f
+                                setTextColor(0xFF26364A.toInt())
+                                setPadding(8, 8, 8, 4)
+                            }
+                            publicResults.addView(info)
+                            val reveal = Button(this).apply {
+                                text = "查看公共热点密码"
+                                setOnClickListener { confirmPublicReveal(entry) }
+                            }
+                            publicResults.addView(reveal)
+                        }
+                    }
+                }.onFailure { error ->
+                    val failed = TextView(this).apply {
+                        text = "公共密码库暂时无法连接：${error.message ?: "请稍后重试"}"
+                        textSize = 14f
+                        setTextColor(0xFF9A4B35.toInt())
+                        setPadding(8, 10, 8, 10)
+                    }
+                    publicResults.addView(failed)
+                }
+            }
             status.text = "发现 ${results.size} 个可见网络（系统扫描结果）"
         } catch (security: SecurityException) {
             addLine("系统未授予扫描权限。")
@@ -233,6 +285,23 @@ class MainActivity : Activity() {
                         }
                         startActivity(Intent.createChooser(share, "选择分享方式"))
                     }
+                    .show()
+            }
+            .show()
+    }
+
+
+    private fun confirmPublicReveal(entry: PublicWifiDatabase.Hotspot) {
+        val venue = listOf(entry.venue, entry.city).filter { it.isNotBlank() }.joinToString(" · ")
+        AlertDialog.Builder(this)
+            .setTitle("社区共享的公共 WiFi")
+            .setMessage("网络：${entry.ssid}\n地点：${venue.ifBlank { "未注明" }}\n\n这是社区提交并经审核的公开访客网络信息。请先确认你所在场所与记录一致，再使用密码。")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("查看密码") { _, _ ->
+                AlertDialog.Builder(this)
+                    .setTitle(entry.ssid)
+                    .setMessage("密码：${entry.password}")
+                    .setPositiveButton("关闭", null)
                     .show()
             }
             .show()
