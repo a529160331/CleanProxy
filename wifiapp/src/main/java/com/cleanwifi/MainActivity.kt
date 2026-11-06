@@ -143,6 +143,7 @@ class MainActivity : Activity() {
                 .distinctBy { it.BSSID }
                 .sortedByDescending { it.level }
             if (results.isEmpty()) addLine("暂时没有扫描结果。请开启 WiFi 和系统定位，再点扫描。")
+            val savedBySsid = runCatching { vault.list().associateBy { it.ssid } }.getOrDefault(emptyMap())
             results.forEach { result ->
                 val security = when {
                     result.capabilities.contains("WPA3") -> "WPA3"
@@ -150,7 +151,15 @@ class MainActivity : Activity() {
                     result.capabilities.contains("WEP") -> "WEP（较弱）"
                     else -> "开放网络或未知"
                 }
-                addLine("${result.SSID}\n信号：${result.level} dBm · ${result.frequency} MHz · ${security}")
+                addLine("${result.SSID}\\n信号：${result.level} dBm · ${result.frequency} MHz · ${security}")
+                val saved = savedBySsid[result.SSID]
+                if (saved != null) {
+                    val matched = Button(this).apply {
+                        text = "本机已保存密码 · 查看 / 手动分享"
+                        setOnClickListener { confirmRevealOrShare(saved.ssid, saved.password) }
+                    }
+                    content.addView(matched)
+                }
             }
             status.text = "发现 ${results.size} 个可见网络（系统扫描结果）"
         } catch (security: SecurityException) {
@@ -204,6 +213,29 @@ class MainActivity : Activity() {
         } catch (error: Exception) {
             addLine("密码本读取失败。为保护数据，没有尝试上传或明文导出。")
         }
+    }
+
+    private fun confirmRevealOrShare(ssid: String, password: String) {
+        AlertDialog.Builder(this)
+            .setTitle("查看已保存的 WiFi 密码")
+            .setMessage("网络：$ssid\\n密码仅在本机加密保存。确认后才会在屏幕显示；分享也必须由你再次主动选择。")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("显示密码") { _, _ ->
+                AlertDialog.Builder(this)
+                    .setTitle(ssid)
+                    .setMessage("密码：$password")
+                    .setNegativeButton("关闭", null)
+                    .setPositiveButton("手动分享") { _, _ ->
+                        val share = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_SUBJECT, "WiFi：$ssid")
+                            putExtra(Intent.EXTRA_TEXT, "WiFi 名称：$ssid\\n密码：$password")
+                        }
+                        startActivity(Intent.createChooser(share, "选择分享方式"))
+                    }
+                    .show()
+            }
+            .show()
     }
 
     private fun showAddDialog() {
