@@ -55,3 +55,32 @@ Keep provider integrations behind a small adapter that normalizes records into t
 ## Important limitation
 
 A database of Wi-Fi network names or access-point locations is not a password database. Open-network maps and wardriving datasets must not be represented as sources of guest passwords.
+
+## China-mainland source review (2026-11-07)
+
+The product's primary market is mainland China. The following local leads have been checked against public documentation; none currently provides a confirmed, openly licensed nationwide password API.
+
+| China source / lead | Verified facts | Decision |
+| --- | --- | --- |
+| WiFi万能钥匙 / 南京尚网网络 | Its official help page says it has more than ten million hotspot records and describes user-shared hotspots. Its hotspot-sharing statement says records come from partners or users, and contributors must have the right to share. Its current service agreement says users submitting a shared hotspot submit the network name and password, and must own the network or have sufficient authorization. | **Top partnership target.** The public materials establish that a credential-sharing ecosystem exists, but do not document a public third-party password API or redistribution license. Do not scrape, reverse-engineer private endpoints, or copy app data. Ask for a licensed partner API/data agreement. Public business contacts shown on its official site include wifisales@zenmen.com; another official business contact is business@wifi.com. |
+| Shenzhen Government Open Data: public-WiFi venue list | Dataset “深圳市工信局公共WIFI的热点场所信息清单开放专用” is listed as unconditional open data, updated 2026-04-20, with 94 sample records. Its description says it contains venue name, hotspot type, address/group address and district, not passwords; full data requires an information-disclosure application. | Useful **venue/location seed data**, not a credential source. Only ingest fields and use cases allowed by the dataset terms; do not infer or manufacture passwords. |
+| Juhe Data “全国WIFI” API | The product page describes nationwide free-Wi-Fi hotspot distribution, but currently labels the service “维护中” (under maintenance). The page describes hotspot information, not a verified password dataset. | Not currently usable; do not integrate or pay until the provider confirms service availability, data fields, provenance, and rights to display any credentials. |
+| 360免费WiFi (historical documentation) | A 360 privacy whitepaper describes a user feature for sharing a user's own hotspot name/password to its server for nearby users. The document is old and does not establish a current public API or third-party redistribution rights. | Historical evidence of another sharing model, **not** a current source. Seek current operator confirmation before considering any partnership. |
+| Public-sector open Wi-Fi networks | Government/public venue datasets and unified-authentication portals may list public access locations. The Shenzhen dataset above is a concrete example. | Treat as a separate “public hotspot discovery” feed. A listed venue or SSID does not imply a password is public; many networks use captive portals, phone/SMS authentication, or managed access. |
+
+### Mainland-China compliance and admission rules
+
+- The Ministry of Public Security's 2018 notice on Wi-Fi-sharing services states that personal Wi-Fi networks and non-public internal networks of government agencies/enterprises must not be shared without the person's or organization's authorization/consent. This is a hard admission rule for CleanWiFi.
+- Only accept venue guest Wi-Fi credentials when the venue/operator has explicitly authorized public sharing, or when the contributor can demonstrate authority to share that network.
+- Exclude residential/private networks, enterprise/internal networks, school dormitory networks, and credentials obtained from leaks, scraping, device extraction, or unauthorized access.
+- A public venue listing is not proof that its password may be redistributed. Keep venue metadata and credential records as separate data types.
+- Every credential record should carry source/provenance, authorization evidence or attestation, SSID, BSSID only where lawfully and appropriately supplied, venue/location, last verified time, verification status, and a removal contact/process. Avoid collecting contributor identity or device identifiers unless strictly necessary and legally reviewed.
+
+### Mainland-China next actions
+
+1. Prepare a concise partnership request to WiFi万能钥匙 asking whether it offers a third-party licensed API, partner SDK, or permitted data export for public/partner guest hotspots, and what attribution, caching, and security requirements apply.
+2. Use Shenzhen's 94-record public-Wi-Fi venue dataset as a **location-only pilot** after downloading and checking its field-level metadata and reuse terms. Do not show passwords for those records unless separately authorized.
+3. Contact Juhe only to confirm whether its “全国WIFI” product is still maintained and whether it contains credentials at all; current public page says it is under maintenance.
+4. Keep the first-party moderated credential feed as the only immediately controllable password source. Recruit venues directly and require an explicit authorization checkbox plus a removal path.
+5. Do not claim “全国密码库已接入” until a real source returns credential records and the app has passed live verification tests in multiple mainland cities.
+
