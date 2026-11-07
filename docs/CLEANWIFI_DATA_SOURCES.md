@@ -84,3 +84,25 @@ The product's primary market is mainland China. The following local leads have b
 4. Keep the first-party moderated credential feed as the only immediately controllable password source. Recruit venues directly and require an explicit authorization checkbox plus a removal path.
 5. Do not claim “全国密码库已接入” until a real source returns credential records and the app has passed live verification tests in multiple mainland cities.
 
+### Important source-rights clarification (2026-11-07)
+
+A closer review of the current WiFi万能钥匙 software agreement (effective 2026-09-10) materially narrows the partnership path:
+
+- The agreement expressly identifies Wi-Fi hotspot names, coordinates, and passwords as protected intellectual-property / business-secret content, and says rights remain with the operator or its licensors.
+- It prohibits uses not expressly authorized in writing.
+- Its sharing clause permits the platform's own users/technologies to connect to user-shared hotspots; it does **not** grant CleanWiFi a right to extract, display, copy, or redistribute those records.
+- Therefore the only acceptable route is a written license / partner API agreement explicitly covering third-party app access, credential display or connection handoff, caching, attribution, security controls, user consent, and deletion/withdrawal. No scraping, reverse engineering, client automation, or reuse of the consumer app's private endpoints.
+
+The official Shenzhen Open Data Platform terms also require source attribution for app outputs but prohibit transferring acquired data resources (whether paid or free) to others; the platform may also require removal when data is taken offline. Its public Wi-Fi dataset is described as a 94-record sample with venue name/type/address/district, not passwords, and the full dataset requires an information-disclosure application. **Do not mirror the raw dataset into CleanWiFi's hosted JSON feed or redistribute it** unless the platform gives written permission for that exact use. First request written clarification on whether an app may display derived venue-location results without transferring the underlying dataset; if not, keep the dataset out of the app.
+
+Verified official references:
+- WiFi万能钥匙 current software agreement: https://static.ttwifi.net/policy_wikey.html
+- WiFi万能钥匙 hotspot mutual-sharing statement: https://cn.wifi.com/app_h5/connect_sdk/share_plan/
+- WiFi万能钥匙 business cooperation page: https://wifi.com/wifipro/professional.html
+- Shenzhen Open Data dataset: https://opendata.sz.gov.cn/data/dataSet/toDataDetails/29200_00603562
+- Shenzhen Open Data platform terms are displayed on that dataset page.
+
+### Contact / outreach status
+
+The official WiFi万能钥匙 business page publishes wifisales@zenmen.com and the business WeChat ID WiFiPartner. This is a lead only; no message has been sent and no partnership/API access has been granted.
+
