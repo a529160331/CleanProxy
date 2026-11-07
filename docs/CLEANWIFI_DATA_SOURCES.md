@@ -8,14 +8,15 @@ CleanWiFi's primary value is matching nearby venue/guest Wi-Fi networks against 
 
 The app must never present a guessed, leaked, scraped, or unverified password as a usable credential. Do not attempt to break WPA/WPA2/WPA3 authentication or bypass access controls.
 
-## Candidate source review
+## Candidate source review (rechecked 2026-11-07)
 
 | Candidate | What is publicly documented | Integration decision |
 | --- | --- | --- |
-| WifiPass (wifipass.io) | Its website describes a crowdsourced database and claims 30M+ hotspots / 50M+ working passwords. | Do not scrape or copy its data. No public developer API or redistribution grant has been verified. Revisit only if the operator provides an API and written terms permitting this use. |
-| WiFiShare (wifishare.github.io) | Open specification and planned API/data dump; its own status page says the API is not live and no data is being collected yet. | Monitor; not a live password source today. Respect the spec's privacy model and ODbL data terms if it becomes operational. |
-| OpenWifiPassMap (github.com/oriolj/openwifipassmap) | Public crowdsourced venue Wi-Fi directory project. Its repository currently says the license is TBD. | Do not import code or records until a clear license and data-submission permission are published. |
-| Freifunk OpenWiFiMap (github.com/freifunk/openwifimap-api) | Open directory/API focused on free/open networks. | Potential source for open-network discovery, not a verified source of protected-network passwords. Check live API terms and endpoint availability before use. |
+| WifiPass (wifipass.io) | Its website claims 30M+ hotspots and 50M+ working passwords, crowdsourced from travelers, and says its API uses Firebase App Check to serve the official app rather than scrapers. | High-value lead, but no public developer API or redistribution grant is documented. Do not reverse-engineer its app API, scrape, or copy its data. Contact the operator for a licensed partner API or export. |
+| WiFiShare (wifishare.github.io) | The current project page explicitly says the API is not live, no data is collected, and the project is still at specification/foundation stage. Its planned public data is ODbL 1.0; API v1 describes area lookups, but no live dataset is available yet. | Monitor and prepare a compatible importer, but it cannot supply passwords today. The project explicitly says protected networks are included only when their owner deliberately shares them. |
+| OpenWifiPassMap (github.com/oriolj/openwifipassmap) | A public crowdsourced venue Wi-Fi directory with an API, but the repository still marks its license as TBD. | Do not import code or records until a clear license and data-submission permission are published. |
+| Freifunk OpenWiFiMap (github.com/freifunk/openwifimap-api) | MIT-licensed API/database for free community networks such as Freifunk; not a password-sharing directory. | Potentially useful as a separate source of open-network discovery, not as a source of protected guest passwords. Check the live endpoint and current service terms before use. |
+| OpenWifiPass (seemoo-lab/openwifipass) | Experimental GPL-3.0 implementation of Apple's Wi-Fi password-sharing protocol, requiring a Linux host with BLE; README warns it is untested/incomplete and does not authenticate requestors. | Not a public password database and not suitable to embed in CleanWiFi. Do not use it to solicit or disclose credentials from nearby devices. |
 
 ## Current repository source
 
@@ -44,10 +45,12 @@ Keep provider integrations behind a small adapter that normalizes records into t
 
 ## Immediate next steps
 
-1. Contact candidate operators or inspect their official API/terms for a written integration path.
+1. Seek a licensed partner/API arrangement from WifiPass; its own anti-scraping design means unofficial API reuse is not an acceptable shortcut.
 2. Keep collecting venue-authorized submissions through the existing GitHub issue form.
-3. Add a provider adapter only after a real, permitted endpoint is confirmed.
-4. Test returned credentials at the venue or through an authorized verification workflow; never claim a password is working solely because it exists in a dataset.
+3. Monitor WiFiShare until its API and real dataset are actually live; its current specification is useful for future interoperability but cannot return passwords today.
+4. Optionally add Freifunk/OpenWiFiMap as a clearly separate open-network source after checking the live API terms; never label it as a password source.
+5. Add a provider adapter only after a real, permitted endpoint is confirmed.
+6. Test returned credentials at the venue or through an authorized verification workflow; never claim a password is working solely because it exists in a dataset.
 
 ## Important limitation
 
