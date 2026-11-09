@@ -39,7 +39,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         vault = LocalVault(this)
-        publicDb = PublicWifiDatabase()
+        publicDb = PublicWifiDatabase(this)
         buildScreen()
         registerScanReceiver()
         renderNetworks()
@@ -179,6 +179,11 @@ class MainActivity : Activity() {
             publicDb.lookup(results.map { it.SSID }.toSet()) { response ->
                 publicResults.removeAllViews()
                 response.onSuccess { matches ->
+                    status.text = if (publicDb.lastLookupUsedOfflineCache) {
+                        "当前网络不可用，正在使用本机保存的已审核公共热点数据"
+                    } else {
+                        "公共热点数据已更新并完成匹配"
+                    }
                     if (matches.isEmpty()) {
                         val empty = TextView(this).apply {
                             text = "暂时没有匹配到已审核的公共密码。当前共享库仍在积累首批记录；这不代表网络密码无法使用，也不会猜测或伪造密码。"
