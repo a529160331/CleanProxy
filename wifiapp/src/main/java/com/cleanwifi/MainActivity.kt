@@ -318,7 +318,11 @@ class MainActivity : Activity() {
             setPadding(32, 16, 32, 0)
         }
         val ssid = EditText(this).apply { hint = "WiFi 名称（SSID）" }
-        val password = EditText(this).apply { hint = "密码（开放网络可留空）" }
+        val password = EditText(this).apply {
+            hint = "密码（开放网络可留空）"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
         box.addView(ssid)
         box.addView(password)
         AlertDialog.Builder(this)
