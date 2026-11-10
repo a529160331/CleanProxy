@@ -101,7 +101,7 @@ class MainActivity : Activity() {
         if (!file.exists()) return
         try {
             validateConfig(file.readText())
-            configInfo.text = "已保存配置：" + file.name + "\n基础结构检查通过（未验证节点连通性）"
+            configInfo.text = "已保存配置：" + file.name + "\nJSON 结构检查通过（尚未启动核心或验证节点连通性）"
             status.text = "配置已就绪 · 尚未连接"
         } catch (_: Exception) {
             file.delete()
@@ -130,7 +130,7 @@ class MainActivity : Activity() {
             } ?: throw IllegalArgumentException("无法读取文件")
             val json = validateConfig(content)
             configFile?.writeText(json.toString(2))
-            configInfo.text = "节点配置已导入并保存在本机"
+            configInfo.text = "节点配置已导入并保存在本机\n仅通过基础结构检查，尚未验证核心兼容性或节点连通性"
             status.text = "配置已就绪 · 尚未连接"
         } catch (e: Exception) {
             configInfo.text = "导入失败：" + (e.message ?: "配置格式不正确")
@@ -150,7 +150,13 @@ class MainActivity : Activity() {
             val type = outbound.optString("type").trim()
             require(type.isNotEmpty()) { "第 ${index + 1} 个 outbound 缺少 type" }
             val tag = outbound.optString("tag").trim()
-            if (tag.isNotEmpty()) require(tags.add(tag)) { "outbound tag 重复：$tag" }
+            require(tag.isNotEmpty()) { "第 ${index + 1} 个 outbound 缺少 tag" }
+            require(tags.add(tag)) { "outbound tag 重复：$tag" }
+        }
+        val route = json.optJSONObject("route")
+        val finalOutbound = route?.optString("final")?.trim().orEmpty()
+        if (finalOutbound.isNotEmpty()) {
+            require(finalOutbound in tags) { "route.final 指向不存在的 outbound：$finalOutbound" }
         }
         return json
     }
