@@ -2,7 +2,7 @@ name: Android Debug APK
 
 on:
   push:
-    branches: [ main, master, feature/free-client-foundation ]
+    branches: [ main, master, feature/free-client-foundation, feature/cleanwifi-shared-hotspot-v1 ]
   workflow_dispatch:
 
 concurrency:
