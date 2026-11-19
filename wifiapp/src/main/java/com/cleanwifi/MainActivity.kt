@@ -161,6 +161,14 @@ class MainActivity : Activity() {
                         setOnClickListener { confirmRevealOrShare(saved.ssid, saved.password) }
                     }
                     content.addView(matched)
+                    val connect = Button(this).apply {
+                        text = "请求 Android 连接此网络"
+                        setOnClickListener {
+                            val capabilities = results.firstOrNull { it.SSID == saved.ssid }?.capabilities.orEmpty()
+                            confirmConnectLocal(saved.ssid, saved.password, capabilities)
+                        }
+                    }
+                    content.addView(connect)
                 }
             }
 
@@ -206,6 +214,14 @@ class MainActivity : Activity() {
                                 setOnClickListener { confirmPublicReveal(entry) }
                             }
                             publicResults.addView(reveal)
+                            val connect = Button(this).apply {
+                                text = "请求 Android 连接此公共热点"
+                                setOnClickListener {
+                                    val capabilities = results.firstOrNull { it.SSID == entry.ssid }?.capabilities.orEmpty()
+                                    confirmConnectPublic(entry, capabilities)
+                                }
+                            }
+                            publicResults.addView(connect)
                         }
                     }
                 }.onFailure { error ->
@@ -308,6 +324,30 @@ class MainActivity : Activity() {
                     .setMessage("密码：${entry.password}")
                     .setPositiveButton("关闭", null)
                     .show()
+            }
+            .show()
+    }
+
+    private fun confirmConnectLocal(ssid: String, password: String, capabilities: String) {
+        AlertDialog.Builder(this)
+            .setTitle("请求连接已保存的 Wi-Fi")
+            .setMessage("将「$ssid」提交给 Android Wi-Fi 系统处理。系统可能要求你先授权；CleanWiFi 不会绕过系统确认，也无法保证路由器接受密码。")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("继续") { _, _ ->
+                val message = WifiConnector.submitSuggestion(this, ssid, password, capabilities)
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            }
+            .show()
+    }
+
+    private fun confirmConnectPublic(entry: PublicWifiDatabase.Hotspot, capabilities: String) {
+        AlertDialog.Builder(this)
+            .setTitle("连接社区共享热点")
+            .setMessage("网络：${entry.ssid}\n地点：${entry.venue} · ${entry.city}\n\n请确认你就在该公共场所，且愿意使用这条经审核的访客网络记录。继续后会交由 Android 系统授权和连接。")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("请求系统连接") { _, _ ->
+                val message = WifiConnector.submitSuggestion(this, entry.ssid, entry.password, capabilities)
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
             }
             .show()
     }
