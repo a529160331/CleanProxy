@@ -121,6 +121,6 @@ class PublicWifiDatabase(context: Context) {
         private const val CACHE_TTL_MS = 30L * 60L * 1000L
         private const val MAX_CACHE_BYTES = 2 * 1024 * 1024
         private const val DATA_URL =
-            "https://raw.githubusercontent.com/a529160331/CleanProxy/feature/free-client-foundation/wifiapp/src/main/assets/public-wifi.json"
+            "https://raw.githubusercontent.com/a529160331/CleanProxy/feature/cleanwifi-shared-hotspot-v1/wifiapp/src/main/assets/public-wifi.json"
     }
 }
