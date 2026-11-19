@@ -22,9 +22,12 @@ object WifiConnector {
         if (ssid.isBlank()) return "Wi-Fi 名称为空，无法提交。"
 
         val caps = capabilities.uppercase()
-        val builder = WifiNetworkSuggestion.Builder()
-            .setSsid(ssid)
-            .setIsAppInteractionRequired(true)
+        val builder = WifiNetworkSuggestion.Builder().setSsid(ssid)
+        // This setter was added after Android 10 (API 29); guard it so the
+        // minSdk 26 app does not call a newer platform method on API 29.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            builder.setIsAppInteractionRequired(true)
+        }
 
         when {
             caps.contains("WPA3") || caps.contains("SAE") -> {
